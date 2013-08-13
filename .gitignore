@@ -36,6 +36,7 @@ nosetests.xml
 .gitignore
 
 #files
+*.csv
 todo.txt
 test.py
 new_ga.py
