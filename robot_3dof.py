@@ -1,6 +1,6 @@
 #import numpy as np
 from math import *
-
+from my_tools import *
 
 class Robot:
   def __init__(self,alpha=0, a=0, d=0, b=0, e=0, r=0, c=0, dz=0):
@@ -20,8 +20,118 @@ class Robot:
 
   @staticmethod 
   def init_fast( a, b, r, c, dz=0):
-    r = Robot(alpha=120, a = a,b = b, r = r, c = c ,dz = dz)
+    r = Robot(alpha = 120, a = a, b = b, r = r, c = c, dz = dz)
     return r
+
+  def set_alpha(self, alpha):
+    self.__alpha = alpha
+
+  def set_a(self, a):
+    self.__a = a
+
+  def set_b(self, b):
+    self.__b = b
+
+  def set_r(self, r):
+    self.__r = r
+
+  def set_c(self, c):
+    self.__c = c
+
+  def set_d(self, d):
+    self.__d = d
+
+  def set_e(self, e):
+    self.__e = e
+
+  def set_dz(self, dz):
+    self.__dz = dz
+  
+  def get_alpha(self):
+    return self.__alpha
+
+  def get_a(self):
+    return self.__a
+
+  def get_b(self):
+    return self.__b
+
+  def get_r(self):
+    return self.__r
+
+  def get_c(self):
+    return self.__c
+
+  def get_d(self):
+    return self.__d
+
+  def get_e(self):
+    return self.__e
+
+  def set_dz(self, dz):
+    self.__dz = dz
+
+  def get_parameters(self):
+    r = [self.__alpha, self.__a, self.__b, self.__r, self.__c, self.__d, self.__e, self.__dz]
+    return r
+
+  def get_arms_lenght(self):
+    return self.__a + self.__b + self.__d + self.__e
+
+  def get_max_reach(self):
+    return self.__a + self.__b + self.__d + self.__e + self.__r
+
+  def t_points_half_sphere(self, radius, n_points):
+    l= radius
+    n_temp=0
+    xt = []
+    yt = []
+    zt = []
+    while(n_temp < n_points):
+      x_temp = random.uniform(-l,l)
+      y_temp = random.uniform(-l,l)
+      if(x_temp * x_temp + y_temp * y_temp <= l):
+        xt.append(x_temp)
+        yt.append(y_temp)
+        n_temp = n_temp + 1
+      zt.append(random.uniform(0,l))
+    return xt, yt, zt
+
+  def valid_point(self,x,y,z):
+    r_b = self.__r
+    a = self.__a  
+    b = self.__b
+    c = self.__c
+    d = self.__d
+    e = self.__e  
+    dz = self.__dz
+  
+    alpha_values=[0, radians(self.__alpha), radians(self.__alpha*2)]
+
+    for i in range(3):
+      alpha=alpha_values[i]
+      pu = x * cos(alpha) + y * sin(alpha) - r_b
+      pv = -x * sin(alpha) + y * cos(alpha)
+      pw = z - dz
+
+      if b == 0:
+        return False
+      aux = pv / b
+      if aux < -1 or aux > 1:
+        return False
+
+      teta_3 = acos(aux)
+      temp_1 = pw**2 + pu**2 + 2*c*pu -b**2* sin(teta_3)**2 - 2*b*e* sin(teta_3)-2*b*d* sin(teta_3)-2*d*e+a**2+c**2-d**2-e**2
+                
+      l0= temp_1-2*a*c-2*a*pu
+      l1= -4*a*pw
+      l2= temp_1+2*a*c+2*a*pu
+      discriminant= l1**2-4*l2*l0
+
+      if discriminant <= 0:
+        return False
+
+    return True
 
   def ik(self,x,y,z,return_mode=0):
         r_b = self.__r
@@ -31,9 +141,8 @@ class Robot:
         d = self.__d
         e = self.__e  
         dz = self.__dz
-        alpha_i = self.__alpha
         
-        alpha_values=[0, radians(alpha_i), radians(alpha_i*2)]
+        alpha_values=[0, radians(self.__alpha), radians(self.__alpha*2)]
         teta_1=[]
         j1=[]
         j2=[]
@@ -103,64 +212,3 @@ class Robot:
                       return 1,teta_1,'err','err'
                 else:
                       return 1
-
-
-def gauss_jordan(m, eps = 1.0/(10**10)):
-  """Puts given matrix (2D array) into the Reduced Row Echelon Form.
-     Returns True if successful, False if 'm' is singular.
-     NOTE: make sure all the matrix items support fractions! Int matrix will NOT work!
-     Written by Jarno Elonen in April 2005, released into Public Domain"""
-  (h, w) = (len(m), len(m[0]))
-  for y in range(0,h):
-    maxrow = y
-    for y2 in range(y+1, h):    # Find max pivot
-      if abs(m[y2][y]) > abs(m[maxrow][y]):
-        maxrow = y2
-    (m[y], m[maxrow]) = (m[maxrow], m[y])
-    if abs(m[y][y]) <= eps:     # Singular?
-      return False
-    for y2 in range(y+1, h):    # Eliminate column y
-      c = m[y2][y] / m[y][y]
-      for x in range(y, w):
-        m[y2][x] -= m[y][x] * c
-  for y in range(h-1, 0-1, -1): # Backsubstitute
-    c  = m[y][y]
-    for y2 in range(0,y):
-      for x in range(w-1, y-1, -1):
-        m[y2][x] -=  m[y][x] * m[y2][y] / c
-    m[y][y] /= c
-    for x in range(h, w):       # Normalize row y
-      m[y][x] /= c
-  return True
-def solve(M, b):
-  """
-  solves M*x = b
-  return vector x so that M*x = b
-  :param M: a matrix in the form of a list of list
-  :param b: a vector in the form of a simple list of scalars
-  """
-  m2 = [row[:]+[right] for row,right in zip(M,b) ]
-  return [row[-1] for row in m2] if gauss_jordan(m2) else None
-
-def inv(M):
-  """
-  return the inv of the matrix M
-  """
-  #clone the matrix and append the identity matrix
-  # [int(i==j) for j in range_M] is nothing but the i(th row of the identity matrix
-  m2 = [row[:]+[int(i==j) for j in range(len(M) )] for i,row in enumerate(M) ]
-  # extract the appended matrix (kind of m2[m:,...]
-  return [row[len(M[0]):] for row in m2] if gauss_jordan(m2) else None
-
-def zeros( s , zero=0):
-    """
-    return a matrix of size `size`
-    :param size: a tuple containing dimensions of the matrix
-    :param zero: the value to use to fill the matrix (by default it's zero )
-    """
-    return [zeros(s[1:] ) for i in range(s[0] ) ] if not len(s) else zero
-
-def normalize(A):
-    s = sqrt(sum([ sum([ (e**2) for e in r ]) for r in A ]))
-    return s
-###################

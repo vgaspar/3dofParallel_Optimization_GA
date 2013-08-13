@@ -33,6 +33,9 @@ nosetests.xml
 .mr.developer.cfg
 .project
 .pydevproject
+.gitignore
 
 #files
+todo.txt
 test.py
+new_ga.py
