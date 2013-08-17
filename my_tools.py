@@ -94,6 +94,18 @@ def half_sphere_cloud_points(radius, n_points):
   vol = sphere_volume(radius)/2
   return points, vol
 
+def make_cube_vertices(center, side, dH):
+  d = side/2.0
+  a1 = tuple(map(lambda x, y: x + y, center, (d, d, 0)))  
+  a2 = tuple(map(lambda x, y: x + y, center, (d, -d, 0)))
+  a3 = tuple(map(lambda x, y: x + y, center, (-d, -d, 0)))
+  a4 = tuple(map(lambda x, y: x + y, center, (-d, d, 0)))
+  a5 = tuple(map(lambda x, y: x + y, a1, (0, 0, dH)))
+  a6 = tuple(map(lambda x, y: x + y, a2, (0, 0, dH)))
+  a7 = tuple(map(lambda x, y: x + y, a3, (0, 0, dH)))
+  a8 = tuple(map(lambda x, y: x + y, a4, (0, 0, dH)))  
+  return [a1, a2, a3, a4, a5, a6, a7, a8]
+
 def average(s): return sum(s) * 1.0 / len(s)
 
 def variance(s,average):return map(lambda x: (x - average)**2, s)

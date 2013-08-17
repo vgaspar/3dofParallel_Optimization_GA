@@ -37,6 +37,8 @@ nosetests.xml
 
 #files
 *.csv
+tests2.py
 todo.txt
 test.py
+test3.py
 new_ga.py

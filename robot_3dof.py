@@ -23,6 +23,35 @@ class Robot:
     r = Robot(alpha = 120, a = a, b = b, r = r, c = c, dz = dz)
     return r
 
+  @staticmethod 
+  def init_zero():
+    r = Robot(alpha = 120)
+    return r
+
+  def set_variables(self, values, order):
+    if len(values) != len(order):
+      return -1
+    for i in range(len(order)):
+      if order[i] == 'a':
+        self.__a = values[i]
+      elif order[i] == 'b':
+        self.__b = values[i]
+      elif order[i] == 'e':
+        self.__e = values[i]
+      elif order[i] == 'd':
+        self.__d = values[i]
+      elif order[i] == 'c':
+        self.__c = values[i]
+      elif order[i] == 'r':
+        self.__r = values[i]
+      elif order[i] == 'c-r':
+        self.__c = self.__r + values[i]
+      elif order[i] == 'alpha':
+        self.__alpha = values[i]
+      elif order[i] == 'dz':
+        self.__dz = values[i]
+    return 1
+    
   def set_alpha(self, alpha):
     self.__alpha = alpha
 
