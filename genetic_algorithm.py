@@ -14,7 +14,7 @@ K_MAX = 10000
 def ga(prng=None, display=False, **kwargs):
     robot = kwargs['robot']
     runs = kwargs['runs']
-    
+    eval_method = kwargs['eval_method']
     filename = kwargs['filename']
     fileheaders = kwargs['fileheaders']
 
@@ -86,7 +86,8 @@ def ga(prng=None, display=False, **kwargs):
                             robot = robot,
                             n_elements = n_elements,
                             robot_base = robot_base,
-                            fileheaders = fileheaders
+                            fileheaders = fileheaders,
+                            eval_method = eval_method
                             )
       stat_file.close()
       ind_file.close()
@@ -97,7 +98,8 @@ def ga(prng=None, display=False, **kwargs):
       #print best.fitness
       #wr_time.writerow([elapsed])
       if display:
-        best = max(final_pop) 
+        best = max(final_pop)
+        print 'Run: %d' %(i+1) 
         print('Best Solution: \n{0}'.format(str(best)))
     #inspyred.ec.analysis.allele_plot(ind_file_name)
     final_file.close()
@@ -118,14 +120,27 @@ def evaluate_work_population(candidates, args):
     robot = args['robot']
     robot_base = args['robot_base']
     fileheaders = args['fileheaders']
+    method = args['eval_method']
     fitness = []
     for individual in candidates:
       fit = 0
       robot.set_variables(individual, fileheaders)
-      for p in points:
-        aux = robot.ik(p[0], p[1], p[2])
-        if aux[0] == 1 and aux[2] != 'err':
-          fit += aux[2]
+      if method==1:
+        for p in points:
+          aux = robot.ik(p[0], p[1], p[2])
+          if aux[0] == 1 and aux[2] != 'err':
+            fit += aux[2]
+      elif method==2:
+        for p in points:
+          aux = robot.ik(p[0], p[1], p[2])
+          if aux[0] == 1 and aux[2] != 'err':
+            fit += aux[2]
+        fit = fit/len(points)
+      elif method == 3:
+        for p in points:
+          if robot.valid_point(p[0], p[1], p[2]):
+            fit += 1
+        fit = fit*1.0/len(points)
       fitness.append(fit)
     #print fitness
     return fitness

@@ -125,6 +125,16 @@ class Robot:
         n_temp = n_temp + 1
       zt.append(random.uniform(0,l))
     return xt, yt, zt
+  def cloud_condition_number(self, points):
+    fitness = []
+    for p in points:
+      aux = self.ik(p[0], p[1], p[2])
+      if aux[0] == 1 and aux[2] != 'err':
+        fit = aux[2]
+      else:
+        fit = 0
+      fitness.append(fit)
+    return fitness
 
   def valid_point(self,x,y,z):
     r_b = self.__r
